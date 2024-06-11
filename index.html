@@ -86,8 +86,8 @@
   </head>
   <body>
   <script>
-    function makeChart(chart, parenthesesString){
-
+    function makeChart(chart, parenthesesString, arr){
+        console.log(arr);
         const movements = parenthesesString.split('').map(p => p === '1' ? [1, 0] : [0, 1]);
         // Set up colors for each step
         const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -153,8 +153,8 @@
             .enter().append("text")
             .attr("x", d => xScale(d.x) + 5) // Shift label to the right
             .attr("y", d => yScale(d.y) - 5) // Shift label up
-            .text((d, i) => `${i}`)
-            .style("font-size", "10px")
+            .text((d, i) => `${(arr) ? (arr.get(i)) ? arr.get(i) : "" : i}`)
+            .style("font-size", "24px")
             .attr("fill", "white");
         const xAxis = d3.axisBottom(xScale);
         const yAxis = d3.axisLeft(yScale);
@@ -215,12 +215,17 @@
     }
 
     let key;
-   let new_str_list = [];
-    let onHold_list = [];
-     let x_list = [];
+   let new_str_list;
+    let onHold_list;
+     let x_list;
+    let mapOfChars;
    window.onload = function(){   
   function encrypt(x, key) {
-  // create a string 'new_str' to hold the new message and onHold to keep a list of characters that still need to be added to the string
+  new_str_list = [];
+    onHold_list = [];
+    x_list = [];
+    mapOfChars = new Map();
+    // create a string 'new_str' to hold the new message and onHold to keep a list of characters that still need to be added to the string
   let new_str = '';
   let onHold = [];
   // Check each character in the key. The character is first added to the onHold list if there is a character. Then if the next key is a 1 nothing happens  and if it is a 0 then the first character on the on hold list is removed and added to the new string
@@ -234,6 +239,7 @@
     if (key[character] === '1') {
       continue;
     } else {
+      mapOfChars.set(character, onHold[0]);
       new_str += onHold[0];
       onHold.shift();
     }
@@ -276,7 +282,8 @@ function decrypt(x, key) {
        encryptKey = keyGen(message.value.length*2).join("");
        console.log(encryptKey, message.value);
        cipher.innerHTML = `Encrypted text: ${encrypt(message.value, encryptKey)}<br> Key: ${encryptKey}<br><br>Decrypted text: ${decrypt(encrypt(message.value, encryptKey), encryptKey)}`;
-       makeChart("chart2", encryptKey);
+       console.log(mapOfChars)
+       makeChart("chart2", encryptKey, mapOfChars);
      });
      let nexthold = document.getElementById("nexthold");
      let prevhold = document.getElementById("prevhold");
@@ -288,7 +295,7 @@ function decrypt(x, key) {
      });
      prevhold.addEventListener("click", function(){
       let key = document.getElementById("key"); 
-       key.innerHTML = `Key: ${encryptKey}<br>Characters on hold: ${onHold_list[counter2]}<br>Text: ${new_str_list[counter2]}<br>Text: ${x_list[counter2]}`;
+       key.innerHTML = `Key: ${encryptKey}<br>Characters on hold: ${onHold_list[counter2]}<br>Encrypted text: ${new_str_list[counter2]}<br>Text: ${x_list[counter2]}`;
       counter2--;
      });
       let button = document.getElementById("dyckgen");
@@ -302,7 +309,7 @@ function decrypt(x, key) {
         // Input string of parentheses
 
         // Parse the string and convert it into movements
-        makeChart("chart", parenthesesString)
+        makeChart("chart", parenthesesString, null)
       });
      let nextnum = document.getElementById("nextnum");
      let prevnum = document.getElementById("prevnum");
